@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="es" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Inventario</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/global.css">
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="h-full gradient-bg text-white">
+  <div id="app" class="h-full w-full flex flex-col overflow-hidden">
+   <header class="glass-dark sticky top-0 z-50 px-4 py-3 flex items-center justify-between"><button id="menuBtn" class="p-2 rounded-lg glass hover:bg-white/20 transition-all">
+     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+     </svg></button>
+    <h1 id="businessTitle" class="text-lg font-semibold truncate mx-2">Sistema de Inventario</h1>
+    <div class="flex items-center gap-2"><span id="currentDate" class="text-xs text-gray-400 hidden sm:block"></span>
+    </div>
+   </header>
+   <nav id="sideMenu" class="fixed inset-y-0 left-0 w-72 glass-dark z-50 transform -translate-x-full transition-transform duration-300">
+    <div class="p-4 border-b border-white/10">
+     <div class="flex items-center justify-between"><span class="text-xl font-bold">Menú</span> <button id="closeMenu" class="p-2 rounded-lg hover:bg-white/10 transition-all">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+       </svg></button>
+     </div>
+    </div>
+    <div class="p-4 space-y-2 overflow-y-auto h-full pb-20 scrollbar-thin"><button data-section="dashboard" class="menu-item w-full flex items-center gap-3 p-3 rounded-xl glass hover:bg-white/20 transition-all text-left">
+      <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+      </svg><span>Dashboard</span> </button> <button data-section="products" class="menu-item w-full flex items-center gap-3 p-3 rounded-xl glass hover:bg-white/20 transition-all text-left">
+      <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+      </svg><span>Productos</span> </button> <button data-section="movements" class="menu-item w-full flex items-center gap-3 p-3 rounded-xl glass hover:bg-white/20 transition-all text-left">
+      <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+      </svg><span>Movimientos</span> </button> <button data-section="shrinkage" class="menu-item w-full flex items-center gap-3 p-3 rounded-xl glass hover:bg-white/20 transition-all text-left">
+      <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg><span>Mermas</span> </button> <button data-section="money" class="menu-item w-full flex items-center gap-3 p-3 rounded-xl glass hover:bg-white/20 transition-all text-left">
+      <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg><span>Dinero</span> </button> <button data-section="reports" class="menu-item w-full flex items-center gap-3 p-3 rounded-xl glass hover:bg-white/20 transition-all text-left">
+      <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg><span>Reportes</span> </button>
+     <div class="border-t border-white/10 my-4 pt-4"><button data-section="backup" class="menu-item w-full flex items-center gap-3 p-3 rounded-xl glass hover:bg-white/20 transition-all text-left">
+       <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+       </svg><span>Respaldo</span> </button>
+     </div>
+    </div>
+   </nav>
+   <div id="menuOverlay" class="fixed inset-0 menu-overlay z-40 hidden"></div>
+   <main id="mainContent" class="flex-1 overflow-y-auto p-4 scrollbar-thin">
+    <section id="dashboard" class="section active animate-fade-in space-y-4">
+     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div class="glass-card rounded-2xl p-4">
+       <div class="flex items-center gap-2 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/30 flex items-center justify-center">
+         <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+         </svg>
+        </div><span class="text-xs text-gray-400">Productos</span>
+       </div>
+       <p id="statProducts" class="text-2xl font-bold">0</p>
+      </div>
+      <div class="glass-card rounded-2xl p-4">
+       <div class="flex items-center gap-2 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-green-500/30 flex items-center justify-center">
+         <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+         </svg>
+        </div><span class="text-xs text-gray-400">Ingresos</span>
+       </div>
+       <p id="statIncome" class="text-2xl font-bold text-green-400">$0</p>
+      </div>
+      <div class="glass-card rounded-2xl p-4">
+       <div class="flex items-center gap-2 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-red-500/30 flex items-center justify-center">
+         <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+         </svg>
+        </div><span class="text-xs text-gray-400">Salidas</span>
+       </div>
+       <p id="statExpense" class="text-2xl font-bold text-red-400">$0</p>
+      </div>
+      <div class="glass-card rounded-2xl p-4">
+       <div class="flex items-center gap-2 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-yellow-500/30 flex items-center justify-center">
+         <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+         </svg>
+        </div><span class="text-xs text-gray-400">Mermas</span>
+       </div>
+       <p id="statShrinkage" class="text-2xl font-bold text-yellow-400">$0</p>
+      </div>
+     </div>
+     <div class="glass-card rounded-2xl p-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+       <h3 class="text-lg font-semibold">Resumen Financiero</h3>
+       <div class="flex gap-2"><input type="date" id="dashDateFrom" class="input-glass rounded-lg px-3 py-2 text-sm"> <input type="date" id="dashDateTo" class="input-glass rounded-lg px-3 py-2 text-sm">
+       </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+       <div class="stat-card rounded-xl p-4">
+        <p class="text-sm text-gray-400 mb-1">Balance Neto</p>
+        <p id="statBalance" class="text-3xl font-bold">$0</p>
+       </div>
+       <div class="stat-card rounded-xl p-4">
+        <p class="text-sm text-gray-400 mb-1">Valor Inventario</p>
+        <p id="statInventoryValue" class="text-3xl font-bold text-blue-400">$0</p>
+       </div>
+       <div class="stat-card rounded-xl p-4">
+        <p class="text-sm text-gray-400 mb-1">Stock Bajo</p>
+        <p id="statLowStock" class="text-3xl font-bold text-orange-400">0</p>
+       </div>
+      </div>
+     </div>
+     <div class="glass-card rounded-2xl p-4">
+      <h3 class="text-lg font-semibold mb-4">Últimos Movimientos</h3>
+      <div id="recentMovements" class="space-y-2 max-h-64 overflow-y-auto scrollbar-thin">
+       <p class="text-gray-400 text-center py-4">Sin movimientos recientes</p>
+      </div>
+     </div>
+     <div class="glass-card rounded-2xl p-4">
+      <h3 class="text-lg font-semibold mb-4">Productos con Stock Bajo</h3>
+      <div id="lowStockList" class="space-y-2 max-h-48 overflow-y-auto scrollbar-thin">
+       <p class="text-gray-400 text-center py-4">Todos los productos tienen stock suficiente</p>
+      </div>
+     </div>
+    </section>
+    <section id="products" class="section animate-fade-in space-y-4">
+     <div class="flex flex-col sm:flex-row gap-3 justify-between">
+      <div class="relative flex-1"><input type="text" id="searchProduct" placeholder="Buscar producto..." class="w-full input-glass rounded-xl px-4 py-3 pl-10">
+       <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+       </svg>
+      </div><button id="addProductBtn" class="btn-primary px-6 py-3 rounded-xl font-medium flex items-center justify-center gap-2">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+       </svg><span>Nuevo</span> </button>
+     </div>
+     <div class="glass-card rounded-2xl p-4">
+      <div class="flex items-center justify-between mb-4">
+       <h3 class="font-semibold">Lista de Productos</h3><select id="filterCategory" class="input-glass rounded-lg px-3 py-2 text-sm"> <option value="">Todas las categorías</option> </select>
+      </div>
+      <div id="productsList" class="space-y-3 max-h-96 overflow-y-auto scrollbar-thin">
+       <p class="text-gray-400 text-center py-8">No hay productos registrados</p>
+      </div>
+     </div>
+     <div id="productModal" class="fixed inset-0 z-50 hidden">
+      <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+      <div class="absolute inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-lg glass-dark rounded-2xl overflow-hidden">
+       <div class="p-4 border-b border-white/10 flex items-center justify-between">
+        <h3 id="productModalTitle" class="text-lg font-semibold">Nuevo Producto</h3><button id="closeProductModal" class="p-2 rounded-lg hover:bg-white/10">
+         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+         </svg></button>
+       </div>
+       <form id="productForm" class="p-4 space-y-4 max-h-[70vh] overflow-y-auto scrollbar-thin"><input type="hidden" id="productId">
+        <div><label class="block text-sm text-gray-400 mb-1" for="productName">Nombre *</label> <input type="text" id="productName" required class="w-full input-glass rounded-lg px-4 py-3">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+         <div><label class="block text-sm text-gray-400 mb-1" for="productSku">SKU</label> <input type="text" id="productSku" class="w-full input-glass rounded-lg px-4 py-3">
+         </div>
+         <div><label class="block text-sm text-gray-400 mb-1" for="productCategory">Categoría</label> <input type="text" id="productCategory" class="w-full input-glass rounded-lg px-4 py-3" list="categories"> <datalist id="categories"></datalist>
+         </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+         <div><label class="block text-sm text-gray-400 mb-1" for="productPrice">Precio Venta *</label> <input type="number" id="productPrice" required min="0" class="w-full input-glass rounded-lg px-4 py-3">
+         </div>
+         <div><label class="block text-sm text-gray-400 mb-1" for="productCost">Costo</label> <input type="number" id="productCost" min="0" class="w-full input-glass rounded-lg px-4 py-3">
+         </div>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+         <div><label class="block text-sm text-gray-400 mb-1" for="productStock">Stock</label> <input type="number" id="productStock" min="0" value="0" class="w-full input-glass rounded-lg px-4 py-3">
+         </div>
+         <div><label class="block text-sm text-gray-400 mb-1" for="productMinStock">Stock Mín.</label> <input type="number" id="productMinStock" min="0" value="5" class="w-full input-glass rounded-lg px-4 py-3">
+         </div>
+         <div><label class="block text-sm text-gray-400 mb-1" for="productUnit">Unidad</label> <select id="productUnit" class="w-full input-glass rounded-lg px-4 py-3"> <option value="unidad">Unidad</option> <option value="kg">Kg</option> <option value="lt">Lt</option> <option value="mt">Mt</option> </select>
+         </div>
+        </div>
+        <div class="flex gap-3 pt-4"><button type="button" id="cancelProduct" class="flex-1 glass rounded-xl py-3 font-medium hover:bg-white/20 transition-all">Cancelar</button> <button type="submit" class="flex-1 btn-primary rounded-xl py-3 font-medium">Guardar</button>
+        </div>
+       </form>
+      </div>
+     </div>
+    </section>
+    <section id="movements" class="section animate-fade-in space-y-4">
+     <div class="flex flex-col sm:flex-row gap-3 justify-between">
+      <div class="flex gap-2"><input type="date" id="movDateFrom" class="input-glass rounded-lg px-3 py-2 text-sm"> <input type="date" id="movDateTo" class="input-glass rounded-lg px-3 py-2 text-sm">
+      </div><button id="addMovementBtn" class="btn-primary px-6 py-3 rounded-xl font-medium flex items-center justify-center gap-2">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+       </svg><span>Nuevo Movimiento</span> </button>
+     </div>
+     <div class="grid grid-cols-2 gap-3">
+      <div class="glass-card rounded-xl p-4">
+       <p class="text-xs text-gray-400 mb-1">Entradas</p>
+       <p id="movEntriesTotal" class="text-xl font-bold text-green-400">0</p>
+      </div>
+      <div class="glass-card rounded-xl p-4">
+       <p class="text-xs text-gray-400 mb-1">Salidas</p>
+       <p id="movExitsTotal" class="text-xl font-bold text-red-400">0</p>
+      </div>
+     </div>
+     <div class="glass-card rounded-2xl p-4">
+      <div class="flex items-center justify-between mb-4">
+       <h3 class="font-semibold">Historial de Movimientos</h3><select id="filterMovType" class="input-glass rounded-lg px-3 py-2 text-sm"> <option value="">Todos</option> <option value="entrada">Entradas</option> <option value="salida">Salidas</option> </select>
+      </div>
+      <div id="movementsList" class="space-y-3 max-h-96 overflow-y-auto scrollbar-thin">
+       <p class="text-gray-400 text-center py-8">No hay movimientos registrados</p>
+      </div>
+     </div>
+     <div id="movementModal" class="fixed inset-0 z-50 hidden">
+      <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+      <div class="absolute inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-lg glass-dark rounded-2xl overflow-hidden">
+       <div class="p-4 border-b border-white/10 flex items-center justify-between">
+        <h3 class="text-lg font-semibold">Nuevo Movimiento</h3><button id="closeMovementModal" class="p-2 rounded-lg hover:bg-white/10">
+         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+         </svg></button>
+       </div>
+       <form id="movementForm" class="p-4 space-y-4">
+        <div><label class="block text-sm text-gray-400 mb-1" for="movProduct">Producto *</label>
+         <div class="relative"><input type="text" id="movProductSearch" placeholder="Buscar producto..." class="w-full input-glass rounded-lg px-4 py-3 mb-2">
+          <div id="movProductDropdown" class="hidden absolute top-full left-0 right-0 bg-slate-800 border border-white/20 rounded-lg mt-1 max-h-48 overflow-y-auto scrollbar-thin z-30">
+           <div id="movProductList" class="p-1"></div>
+          </div>
+         </div><input type="hidden" id="movProduct" required>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+         <div><label class="block text-sm text-gray-400 mb-1" for="movType">Tipo *</label> <select id="movType" required class="w-full input-glass rounded-lg px-4 py-3"> <option value="entrada">Entrada</option> <option value="salida">Salida</option> </select>
+         </div>
+         <div><label class="block text-sm text-gray-400 mb-1" for="movQuantity">Cantidad *</label> <input type="number" id="movQuantity" required min="1" class="w-full input-glass rounded-lg px-4 py-3">
+         </div>
+        </div>
+        <div><label class="block text-sm text-gray-400 mb-1" for="movReason">Motivo</label> <input type="text" id="movReason" class="w-full input-glass rounded-lg px-4 py-3" placeholder="Compra, venta, ajuste...">
+        </div>
+        <div><label class="block text-sm text-gray-400 mb-1" for="movDate">Fecha</label> <input type="date" id="movDate" class="w-full input-glass rounded-lg px-4 py-3">
+        </div>
+        <div class="flex gap-3 pt-4"><button type="button" id="cancelMovement" class="flex-1 glass rounded-xl py-3 font-medium hover:bg-white/20 transition-all">Cancelar</button> <button type="submit" class="flex-1 btn-primary rounded-xl py-3 font-medium">Guardar</button>
+        </div>
+       </form>
+      </div>
+     </div>
+    </section>
+    <section id="shrinkage" class="section animate-fade-in space-y-4">
+     <div class="flex flex-col sm:flex-row gap-3 justify-between">
+      <div class="flex gap-2"><input type="date" id="shrinkDateFrom" class="input-glass rounded-lg px-3 py-2 text-sm"> <input type="date" id="shrinkDateTo" class="input-glass rounded-lg px-3 py-2 text-sm">
+      </div><button id="addShrinkageBtn" class="btn-danger px-6 py-3 rounded-xl font-medium flex items-center justify-center gap-2">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+       </svg><span>Registrar Merma</span> </button>
+     </div>
+     <div class="glass-card rounded-2xl p-4">
+      <div class="flex items-center gap-3 mb-2">
+       <div class="w-10 h-10 rounded-xl bg-red-500/30 flex items-center justify-center">
+        <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+       </div>
+       <div>
+        <p class="text-sm text-gray-400">Total Pérdidas</p>
+        <p id="shrinkageTotal" class="text-2xl font-bold text-red-400">$0</p>
+       </div>
+      </div>
+     </div>
+     <div class="glass-card rounded-2xl p-4">
+      <h3 class="font-semibold mb-4">Registro de Mermas</h3>
+      <div id="shrinkageList" class="space-y-3 max-h-96 overflow-y-auto scrollbar-thin">
+       <p class="text-gray-400 text-center py-8">No hay mermas registradas</p>
+      </div>
+     </div>
+     <div id="shrinkageModal" class="fixed inset-0 z-50 hidden">
+      <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+      <div class="absolute inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-lg glass-dark rounded-2xl overflow-hidden">
+       <div class="p-4 border-b border-white/10 flex items-center justify-between">
+        <h3 class="text-lg font-semibold">Registrar Merma</h3><button id="closeShrinkageModal" class="p-2 rounded-lg hover:bg-white/10">
+         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+         </svg></button>
+       </div>
+       <form id="shrinkageForm" class="p-4 space-y-4">
+        <div><label class="block text-sm text-gray-400 mb-1" for="shrinkProduct">Producto *</label>
+         <div class="relative"><input type="text" id="shrinkProductSearch" placeholder="Buscar producto..." class="w-full input-glass rounded-lg px-4 py-3 mb-2">
+          <div id="shrinkProductDropdown" class="hidden absolute top-full left-0 right-0 bg-slate-800 border border-white/20 rounded-lg mt-1 max-h-48 overflow-y-auto scrollbar-thin z-30">
+           <div id="shrinkProductList" class="p-1"></div>
+          </div>
+         </div><input type="hidden" id="shrinkProduct" required>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+         <div><label class="block text-sm text-gray-400 mb-1" for="shrinkQuantity">Cantidad *</label> <input type="number" id="shrinkQuantity" required min="1" class="w-full input-glass rounded-lg px-4 py-3">
+         </div>
+         <div><label class="block text-sm text-gray-400 mb-1" for="shrinkDate">Fecha</label> <input type="date" id="shrinkDate" class="w-full input-glass rounded-lg px-4 py-3">
+         </div>
+        </div>
+        <div><label class="block text-sm text-gray-400 mb-1" for="shrinkReason">Motivo *</label> <select id="shrinkReason" required class="w-full input-glass rounded-lg px-4 py-3"> <option value="">Seleccionar motivo</option> <option value="vencimiento">Vencimiento</option> <option value="daño">Daño/Rotura</option> <option value="robo">Robo/Pérdida</option> <option value="deterioro">Deterioro</option> <option value="otro">Otro</option> </select>
+        </div>
+        <div class="flex gap-3 pt-4"><button type="button" id="cancelShrinkage" class="flex-1 glass rounded-xl py-3 font-medium hover:bg-white/20 transition-all">Cancelar</button> <button type="submit" class="flex-1 btn-danger rounded-xl py-3 font-medium">Registrar</button>
+        </div>
+       </form>
+      </div>
+     </div>
+    </section>
+    <section id="money" class="section animate-fade-in space-y-4">
+     <div class="flex flex-col sm:flex-row gap-3 justify-between">
+      <div class="flex gap-2"><input type="date" id="moneyDateFrom" class="input-glass rounded-lg px-3 py-2 text-sm"> <input type="date" id="moneyDateTo" class="input-glass rounded-lg px-3 py-2 text-sm">
+      </div><button id="addMoneyBtn" class="btn-success px-6 py-3 rounded-xl font-medium flex items-center justify-center gap-2">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+       </svg><span>Nuevo Registro</span> </button>
+     </div>
+     <div class="grid grid-cols-2 gap-3">
+      <div class="glass-card rounded-xl p-4">
+       <p class="text-xs text-gray-400 mb-1">Ingresos</p>
+       <p id="moneyIncomeTotal" class="text-xl font-bold text-green-400">$0</p>
+      </div>
+      <div class="glass-card rounded-xl p-4">
+       <p class="text-xs text-gray-400 mb-1">Salidas (Reparto)</p>
+       <p id="moneyExpenseTotal" class="text-xl font-bold text-red-400">$0</p>
+      </div>
+     </div>
+     <div class="glass-card rounded-2xl p-4">
+      <div class="flex items-center justify-between mb-4">
+       <h3 class="font-semibold">Movimientos de Dinero</h3><select id="filterMoneyType" class="input-glass rounded-lg px-3 py-2 text-sm"> <option value="">Todos</option> <option value="ingreso">Ingresos</option> <option value="salida">Salidas</option> </select>
+      </div>
+      <div id="moneyList" class="space-y-3 max-h-96 overflow-y-auto scrollbar-thin">
+       <p class="text-gray-400 text-center py-8">No hay registros de dinero</p>
+      </div>
+     </div>
+     <!-- Nueva sección de Servicios -->
+     <div class="glass-card rounded-2xl p-4 mt-4">
+      <div class="flex items-center justify-between mb-4">
+       <h3 class="font-semibold">📋 Servicios a Pagar</h3>
+       <button id="addServiceBtn" class="btn-primary px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Agregar Servicio
+       </button>
+      </div>
+      <div id="servicesList" class="space-y-3 max-h-48 overflow-y-auto scrollbar-thin">
+       <p class="text-gray-400 text-center py-8">No hay servicios registrados</p>
+      </div>
+     </div>
+     <div id="moneyModal" class="fixed inset-0 z-50 hidden">
+      <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+      <div class="absolute inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-lg glass-dark rounded-2xl overflow-hidden">
+       <div class="p-4 border-b border-white/10 flex items-center justify-between">
+        <h3 class="text-lg font-semibold">Nuevo Registro</h3><button id="closeMoneyModal" class="p-2 rounded-lg hover:bg-white/10">
+         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+         </svg></button>
+       </div>
+       <form id="moneyForm" class="p-4 space-y-4">
+        <div><label class="block text-sm text-gray-400 mb-1" for="moneyType">Tipo *</label> <select id="moneyType" required class="w-full input-glass rounded-lg px-4 py-3"> <option value="ingreso">Ingreso</option> <option value="salida">Salida (Reparto)</option> </select>
+        </div>
+        <div><label class="block text-sm text-gray-400 mb-1" for="moneyAmount">Monto *</label> <input type="number" id="moneyAmount" required min="1" class="w-full input-glass rounded-lg px-4 py-3">
+        </div>
+        <div><label class="block text-sm text-gray-400 mb-1" for="moneyDescription">Descripción *</label> <input type="text" id="moneyDescription" required class="w-full input-glass rounded-lg px-4 py-3" placeholder="Venta, compra de insumos...">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+         <div><label class="block text-sm text-gray-400 mb-1" for="moneyRef">Referencia</label> <input type="text" id="moneyRef" class="w-full input-glass rounded-lg px-4 py-3" placeholder="Factura, boleta...">
+         </div>
+         <div><label class="block text-sm text-gray-400 mb-1" for="moneyDate">Fecha</label> <input type="date" id="moneyDate" class="w-full input-glass rounded-lg px-4 py-3">
+        </div>
+        </div>
+        <div class="flex gap-3 pt-4"><button type="button" id="cancelMoney" class="flex-1 glass rounded-xl py-3 font-medium hover:bg-white/20 transition-all">Cancelar</button> <button type="submit" class="flex-1 btn-success rounded-xl py-3 font-medium">Guardar</button>
+        </div>
+       </form>
+      </div>
+     </div>
+     <!-- Modal para agregar servicio -->
+     <div id="serviceModal" class="fixed inset-0 z-50 hidden">
+      <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+      <div class="absolute inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-md glass-dark rounded-2xl overflow-hidden">
+       <div class="p-4 border-b border-white/10 flex items-center justify-between">
+        <h3 class="text-lg font-semibold">Agregar Servicio</h3><button id="closeServiceModal" class="p-2 rounded-lg hover:bg-white/10">
+         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+         </svg></button>
+       </div>
+       <form id="serviceForm" class="p-4 space-y-4">
+        <div>
+         <label class="block text-sm text-gray-400 mb-1" for="serviceName">Nombre del Servicio *</label>
+         <input type="text" id="serviceName" required class="w-full input-glass rounded-lg px-4 py-3" placeholder="Internet, Agua, Luz, Gas...">
+        </div>
+        <div>
+         <label class="block text-sm text-gray-400 mb-1" for="serviceAmount">Monto a Pagar *</label>
+         <input type="number" id="serviceAmount" required min="1" class="w-full input-glass rounded-lg px-4 py-3" placeholder="0">
+        </div>
+        <div>
+         <label class="block text-sm text-gray-400 mb-1" for="serviceDueDate">Fecha de Vencimiento</label>
+         <input type="date" id="serviceDueDate" class="w-full input-glass rounded-lg px-4 py-3">
+        </div>
+        <div class="flex gap-3 pt-4">
+         <button type="button" id="cancelService" class="flex-1 glass rounded-xl py-3 font-medium hover:bg-white/20 transition-all">Cancelar</button>
+         <button type="submit" class="flex-1 btn-primary rounded-xl py-3 font-medium">Guardar</button>
+        </div>
+       </form>
+      </div>
+     </div>
+    </section>
+    <section id="reports" class="section animate-fade-in space-y-4">
+     <div class="glass-card rounded-2xl p-4">
+      <h3 class="font-semibold mb-4">Generar Reportes</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+       <div><label class="block text-sm text-gray-400 mb-2" for="reportType">Tipo de Reporte</label> <select id="reportType" class="w-full input-glass rounded-lg px-4 py-3"> <option value="general">Reporte General</option> <option value="products">Inventario de Productos</option> <option value="movements">Movimientos</option> <option value="shrinkage">Mermas</option> <option value="money">Flujo de Dinero</option> </select>
+       </div>
+       <div><label class="block text-sm text-gray-400 mb-2" for="reportPeriod">Período</label> <select id="reportPeriod" class="w-full input-glass rounded-lg px-4 py-3"> <option value="daily">Diario</option> <option value="weekly">Semanal</option> <option value="monthly">Mensual</option> <option value="custom">Personalizado</option> </select>
+       </div>
+      </div>
+      <div id="customDateRange" class="grid grid-cols-2 gap-4 mt-4 hidden">
+       <div><label class="block text-sm text-gray-400 mb-1" for="reportDateFrom">Desde</label> <input type="date" id="reportDateFrom" class="w-full input-glass rounded-lg px-4 py-3">
+       </div>
+       <div><label class="block text-sm text-gray-400 mb-1" for="reportDateTo">Hasta</label> <input type="date" id="reportDateTo" class="w-full input-glass rounded-lg px-4 py-3">
+       </div>
+      </div><button id="generateReport" class="w-full btn-primary rounded-xl py-3 font-medium mt-4"> Generar Reporte </button>
+     </div>
+     <div id="reportResult" class="glass-card rounded-2xl p-4 hidden">
+      <div class="flex items-center justify-between mb-4">
+       <h3 class="font-semibold">Resultado del Reporte</h3><button id="exportReport" class="btn-success px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg> Exportar Excel </button>
+      </div>
+      <div id="reportContent" class="space-y-4"></div>
+     </div>
+    </section>
+    <section id="backup" class="section animate-fade-in space-y-4">
+     <div class="glass-card rounded-2xl p-4">
+      <div class="flex items-center gap-3 mb-4">
+       <div class="w-12 h-12 rounded-xl bg-cyan-500/30 flex items-center justify-center">
+        <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+        </svg>
+       </div>
+       <div>
+        <h3 class="font-semibold">Crear Respaldo</h3>
+        <p class="text-sm text-gray-400">Exporta todos tus datos a Excel</p>
+       </div>
+      </div><button id="createBackup" class="w-full btn-primary rounded-xl py-3 font-medium flex items-center justify-center gap-2">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+       </svg> Descargar Respaldo Completo </button>
+     </div>
+     <div class="glass-card rounded-2xl p-4">
+      <div class="flex items-center gap-3 mb-4">
+       <div class="w-12 h-12 rounded-xl bg-purple-500/30 flex items-center justify-center">
+        <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+        </svg>
+       </div>
+       <div>
+        <h3 class="font-semibold">Restaurar Respaldo</h3>
+        <p class="text-sm text-gray-400">Carga un archivo de respaldo</p>
+       </div>
+      </div>
+      <div class="border-2 border-dashed border-white/20 rounded-xl p-6 text-center"><input type="file" id="backupFile" accept=".xlsx,.xls,.csv" class="hidden"> <label for="backupFile" class="cursor-pointer">
+        <svg class="w-12 h-12 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+        </svg><p class="text-gray-400 mb-2">Arrastra un archivo o haz clic para seleccionar</p><p class="text-xs text-gray-500">Formatos: .xlsx, .xls, .csv</p></label>
+      </div>
+      <p id="backupFileName" class="text-sm text-center mt-2 text-cyan-400 hidden"></p><button id="restoreBackup" class="w-full glass rounded-xl py-3 font-medium mt-4 hover:bg-white/20 transition-all hidden"> Restaurar Datos </button>
+     </div>
+     <!-- Zona de peligro mejorada -->
+     <div class="glass-card rounded-2xl p-4">
+      <h3 class="font-semibold mb-4 text-red-400">⚠️ Zona de Peligro</h3>
+      <p class="text-sm text-gray-400 mb-4">Esta acción eliminará todos los datos. No se puede deshacer.</p>
+      
+      <div class="space-y-4 mb-4">
+        <div>
+          <label class="block text-sm text-gray-400 mb-1" for="confirmTodayDate">Fecha de hoy (YYYY-MM-DD) *</label>
+          <input type="text" id="confirmTodayDate" class="w-full input-glass rounded-lg px-4 py-3" placeholder="Ingresa la fecha de hoy">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-400 mb-1" id="confirmWordLabel">Palabra de verificación *</label>
+          <input type="text" id="confirmWord" class="w-full input-glass rounded-lg px-4 py-3" placeholder="Ingresa la palabra solicitada">
+        </div>
+      </div>
+      
+      <button id="clearAllData" class="w-full btn-danger rounded-xl py-3 font-medium"> Eliminar Todos los Datos </button>
+     </div>
+    </section>
+   </main>
+  </div>
+  <!-- Modal de confirmación mejorado -->
+  <div id="confirmModal" class="confirm-modal hidden">
+   <div class="glass-dark rounded-2xl p-6 max-w-sm mx-4">
+    <h3 id="confirmTitle" class="text-lg font-semibold mb-2">⚠️ Confirmar eliminación</h3>
+    <p id="confirmMessage" class="text-gray-400 mb-4">Esta acción es irreversible. ¿Estás completamente seguro?</p>
+    <div class="space-y-3 mb-4" id="verificationFields">
+      <!-- Los campos de verificación se insertarán aquí -->
+    </div>
+    <div class="flex gap-3"><button id="confirmCancel" class="flex-1 glass rounded-xl py-2 font-medium hover:bg-white/20 transition-all">Cancelar</button> <button id="confirmOk" class="flex-1 btn-danger rounded-xl py-2 font-medium">Confirmar</button>
+    </div>
+   </div>
+  </div>
+  <script type="module" src="scripts/firebaseConfig.js"></script>
+  <script type="module" src="scripts/main.js"></script>
+  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c8a61ed151b29ff',t:'MTc3MDIxMDM1Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c8a61ed151b29ff',t:'MTc3MDIxMDM1Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
