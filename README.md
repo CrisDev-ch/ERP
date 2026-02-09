@@ -103,7 +103,3 @@ Esto permite que los datos:
 - **Firebase** → persistencia de datos en la nube  
 
 No se utilizan frameworks frontend, lo que permite un control completo del funcionamiento del sistema.
-
----
-
-## 🗂️ Estructura del proyecto
