@@ -43,11 +43,11 @@ El sistema fue diseñado siguiendo el enfoque **Mobile First**, lo que significa
 
 ---
 
-## 🧭 Dashboard Principal
+## 🧭 Generación de reportes
 
-El **dashboard principal** es el núcleo del sistema, donde el usuario puede visualizar de forma rápida el estado general del negocio.
+La **Generación de reportes** nos permite exportar y visualizar un resumen de nuestro sistema ERP, es un area principal que nos permite trabajar de manera rápida y eficaz.
 
-### 📱 Vista Mobile – Dashboard del Sistema
+### 📱 Vista Mobile – Reportes
 
 <p align="center">
   <img src="assets/reporte-mobile.jpg" width="360" alt="Dashboard principal del sistema ERP en vista móvil">
